@@ -79,4 +79,14 @@ public class Veiculo {
         this.dataCriacao = dataCriacao;
     }
 
+    @Override
+    public String toString() {
+        return "Veiculo{" +
+                "id=" + id +
+                ", placa='" + placa + '\'' +
+                ", modelo='" + modelo + '\'' +
+                ", categoria='" + categoria + '\'' +
+                ", dataCriacao=" + dataCriacao +
+                '}';
+    }
 }

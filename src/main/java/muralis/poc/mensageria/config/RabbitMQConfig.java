@@ -1,5 +1,6 @@
 package muralis.poc.mensageria.config;
 
+import muralis.poc.mensageria.veiculos.VeiculoDLQReceiver;
 import muralis.poc.mensageria.veiculos.VeiculoReceiver;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -13,25 +14,30 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    private final String topicExchangeName = "veiculo";
-
+    private final String exchangeName = "veiculo";
     private final String queueName = "cadastrar.veiculo.queue";
+    private final String routingKey = "cadastrar.veiculo";
 
-    private final String veiculoRoutingKey = "cadastrar.veiculo";
+    private final String dlqExchangeName = "veiculo.dlx";
+    private final String dlqQueueName = "cadastrar.veiculo.dlq";
+    private final String dlqRoutingKey = "cadastrar.veiculo.dlq";
 
     @Bean
     Queue queue() {
-        return new Queue(queueName, false);
+        return QueueBuilder.durable(queueName)
+                .withArgument("x-dead-letter-exchange", dlqExchangeName)
+                .withArgument("x-dead-letter-routing-key", dlqRoutingKey)
+                .build();
     }
 
     @Bean
     DirectExchange exchange() {
-        return new DirectExchange(topicExchangeName);
+        return new DirectExchange(exchangeName);
     }
 
     @Bean
     Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(veiculoRoutingKey);
+        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
     }
 
     @Bean
@@ -53,6 +59,39 @@ public class RabbitMQConfig {
         container.setConnectionFactory(connectionFactory);
         container.setQueueNames(queueName);
         container.setMessageListener(listenerAdapter);
+        container.setDefaultRequeueRejected(false);
+        return container;
+    }
+
+    @Bean
+    Queue deadLetterQueue() {
+        return new Queue(dlqQueueName, true);
+    }
+
+    @Bean
+    DirectExchange deadLetterExchange() {
+        return new DirectExchange(dlqExchangeName);
+    }
+
+    @Bean
+    Binding deadLetterBinding(Queue deadLetterQueue, DirectExchange deadLetterExchange) {
+        return BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange).with(dlqRoutingKey);
+    }
+
+    @Bean
+    MessageListenerAdapter dlqListenerAdapter(VeiculoDLQReceiver dlqReceiver) {
+        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(dlqReceiver, "receive");
+        messageListenerAdapter.setMessageConverter(messageConverter());
+        return messageListenerAdapter;
+    }
+
+    @Bean
+    SimpleMessageListenerContainer dlqContainer(ConnectionFactory connectionFactory,
+                                                MessageListenerAdapter dlqListenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames(dlqQueueName);
+        container.setMessageListener(dlqListenerAdapter);
         return container;
     }
 
