@@ -1,11 +1,8 @@
 package muralis.poc.mensageria.config;
 
-import muralis.poc.mensageria.veiculos.VeiculoDLQReceiver;
-import muralis.poc.mensageria.veiculos.VeiculoReceiver;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -46,24 +43,6 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    MessageListenerAdapter listenerAdapter(VeiculoReceiver receiver) {
-        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(receiver, "receive");
-        messageListenerAdapter.setMessageConverter(messageConverter());
-        return messageListenerAdapter;
-    }
-
-    @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-                                             MessageListenerAdapter listenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(queueName);
-        container.setMessageListener(listenerAdapter);
-        container.setDefaultRequeueRejected(false);
-        return container;
-    }
-
-    @Bean
     Queue deadLetterQueue() {
         return new Queue(dlqQueueName, true);
     }
@@ -79,20 +58,10 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    MessageListenerAdapter dlqListenerAdapter(VeiculoDLQReceiver dlqReceiver) {
-        MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(dlqReceiver, "receive");
-        messageListenerAdapter.setMessageConverter(messageConverter());
-        return messageListenerAdapter;
-    }
-
-    @Bean
-    SimpleMessageListenerContainer dlqContainer(ConnectionFactory connectionFactory,
-                                                MessageListenerAdapter dlqListenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(dlqQueueName);
-        container.setMessageListener(dlqListenerAdapter);
-        return container;
+    RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        return rabbitTemplate;
     }
 
 }
