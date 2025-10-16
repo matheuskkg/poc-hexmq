@@ -8,18 +8,13 @@
 - RabbitMQ
 
 ### Pré-requisitos
-- Java
 - Docker
 
 ### Instruções para execução
 
 1. Executar o container do docker
 ```
-docker compose up -d
-```
-2. Executar a aplicação
-```
-mvn spring-boot:run
+docker compose up --build -d
 ```
 
 ### Endpoints
