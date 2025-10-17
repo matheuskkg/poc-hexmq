@@ -1,4 +1,6 @@
-## POC - Mensageria
+## POC - Arquitetura Hexagonal e Mensageria
+
+Desenvolvido como objeto de estudo de arquitetura hexagonal, mensageria e Docker.
 
 ### Tecnologias:
 - Java 17

@@ -38,11 +38,6 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    MessageConverter messageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
     Queue deadLetterQueue() {
         return new Queue(dlqQueueName, true);
     }
@@ -55,6 +50,11 @@ public class RabbitMQConfig {
     @Bean
     Binding deadLetterBinding(Queue deadLetterQueue, DirectExchange deadLetterExchange) {
         return BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange).with(dlqRoutingKey);
+    }
+
+    @Bean
+    MessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 
     @Bean
