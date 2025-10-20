@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class ProcessarVeiculoNaFila implements UseCase<Veiculo> {
+public class ProcessarVeiculoNaFila implements UseCase<Void, Veiculo> {
 
     @Autowired
     private VeiculoMapper mapper;
@@ -25,9 +25,9 @@ public class ProcessarVeiculoNaFila implements UseCase<Veiculo> {
     private final Pattern regexPlaca = Pattern.compile("^(?:[A-Za-z]{3}-?\\d{4}|[A-Za-z]{3}\\d[A-Za-z]\\d{2})$");
 
     @Override
-    public void execute(Veiculo entidade) {
+    public Void execute(Veiculo entidade) {
         String placa = entidade.getPlaca();
-        if (!validarCamposObrigatorios(entidade) || !validarPlaca(placa)) return;
+        if (!validarCamposObrigatorios(entidade) || !validarPlaca(placa)) return null;
 
         try {
             repository.salvar(entidade);
@@ -50,6 +50,8 @@ public class ProcessarVeiculoNaFila implements UseCase<Veiculo> {
                 throw e;
             }
         }
+
+        return null;
     }
 
     private boolean validarCamposObrigatorios(Veiculo veiculo) {

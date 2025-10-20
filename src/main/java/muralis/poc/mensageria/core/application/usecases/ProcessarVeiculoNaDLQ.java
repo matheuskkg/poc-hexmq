@@ -4,9 +4,11 @@ import muralis.poc.mensageria.core.domain.model.Veiculo;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProcessarVeiculoNaDLQ implements UseCase<Veiculo> {
-    @Override
-    public void execute(Veiculo entidade) {
+public class ProcessarVeiculoNaDLQ implements UseCase<Void, Veiculo> {
 
+    @Override
+    public Void execute(Veiculo entidade) {
+        return null;
     }
+
 }

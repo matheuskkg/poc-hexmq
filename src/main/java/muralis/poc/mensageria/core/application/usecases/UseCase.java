@@ -1,7 +1,7 @@
 package muralis.poc.mensageria.core.application.usecases;
 
-public interface UseCase <T> {
+public interface UseCase <R, T> {
 
-    void execute(T entidade);
+    R execute(T entidade);
 
 }

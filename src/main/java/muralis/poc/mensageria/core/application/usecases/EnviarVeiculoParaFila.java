@@ -6,13 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EnviarVeiculoParaFila implements UseCase<Veiculo> {
+public class EnviarVeiculoParaFila implements UseCase<Void, Veiculo> {
 
     @Autowired
     private AdicionarNaFila outbound;
 
     @Override
-    public void execute(Veiculo entidade) {
+    public Void execute(Veiculo entidade) {
         outbound.adicionarNaFila(entidade);
+
+        return null;
     }
 }
