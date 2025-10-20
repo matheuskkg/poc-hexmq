@@ -1,0 +1,8 @@
+rabbitmq:
+  queues:
+    - name: cadastrar.veiculo.queue
+      exchange: veiculo
+      routing-key: cadastrar.veiculo
+      dlx-exchange: veiculo.dlx
+      dlq-name: cadastrar.veiculo.dlq
+      dlq-routing-key: cadastrar.veiculo.dlq
