@@ -67,7 +67,7 @@ public class ProcessarVeiculoNaFila implements UseCase<Void, Veiculo> {
             isValido = false;
         }
 
-        if (veiculo.getCategoria() == null || veiculo.getCategoria().isBlank()) {
+        if (veiculo.getCategoria() == null || veiculo.getCategoria().getCodigo() == null || veiculo.getCategoria().getCodigo().isBlank()) {
             log.info("Categoria null ou vazia");
             isValido = false;
         }

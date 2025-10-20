@@ -25,8 +25,9 @@ public class VeiculoJpaEntity {
     @Column(nullable = false)
     private String modelo;
 
-    @Column(nullable = false)
-    private String categoria;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private VeiculoCategoriaJpaEntity categoria;
 
     @CreatedDate
     @Column(name = "criado_em")

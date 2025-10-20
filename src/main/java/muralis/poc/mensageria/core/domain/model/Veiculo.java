@@ -2,7 +2,7 @@ package muralis.poc.mensageria.core.domain.model;
 
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class Veiculo {
@@ -13,8 +13,8 @@ public class Veiculo {
 
     private String modelo;
 
-    private String categoria;
+    private VeiculoCategoria categoria;
 
-    private LocalDate dataCriacao;
+    private LocalDateTime dataCriacao;
 
 }

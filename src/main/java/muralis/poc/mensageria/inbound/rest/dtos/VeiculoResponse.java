@@ -13,6 +13,6 @@ public class VeiculoResponse {
 
     private String modelo;
 
-    private String categoria;
+    private VeiculoCategoriaResponse categoria;
 
 }

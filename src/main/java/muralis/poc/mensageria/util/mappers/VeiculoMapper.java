@@ -6,7 +6,7 @@ import muralis.poc.mensageria.outbound.persistence.entities.VeiculoJpaEntity;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = VeiculoCategoriaMapper.class)
 public interface VeiculoMapper {
 
     VeiculoJpaEntity toJpaEntity(Veiculo veiculo);
@@ -16,5 +16,11 @@ public interface VeiculoMapper {
     Veiculo toEntity(VeiculoRequest veiculoRequest);
 
     VeiculoResponse toResponse(Veiculo veiculo);
+
+    default Integer booleanToInteger(Boolean value) {
+        if (value == null) return null;
+
+        return value ? 1 : 0;
+    }
 
 }
