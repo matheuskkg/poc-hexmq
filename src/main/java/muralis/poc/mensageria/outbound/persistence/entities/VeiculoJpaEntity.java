@@ -3,10 +3,12 @@ package muralis.poc.mensageria.outbound.persistence.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "veiculos", uniqueConstraints = {
         @UniqueConstraint(columnNames = "placa")
 })
@@ -28,7 +30,7 @@ public class VeiculoJpaEntity {
 
     @CreatedDate
     @Column(name = "criado_em")
-    private LocalDate dataCriacao;
+    private LocalDateTime dataCriacao;
 
 }
 
