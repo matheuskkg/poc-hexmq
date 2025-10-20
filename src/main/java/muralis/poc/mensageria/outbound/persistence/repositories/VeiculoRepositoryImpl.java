@@ -8,6 +8,8 @@ import muralis.poc.mensageria.util.mappers.VeiculoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class VeiculoRepositoryImpl implements VeiculoRepository {
 
@@ -22,5 +24,10 @@ public class VeiculoRepositoryImpl implements VeiculoRepository {
         VeiculoJpaEntity jpaEntity = mapper.toJpaEntity(veiculo);
 
         return mapper.toEntity(jpaRepository.save(jpaEntity));
+    }
+
+    @Override
+    public List<Veiculo> buscarTodos() {
+        return jpaRepository.findAll().stream().map(v -> mapper.toEntity(v)).toList();
     }
 }

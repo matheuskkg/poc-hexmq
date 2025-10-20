@@ -1,6 +1,7 @@
 package muralis.poc.mensageria.util.mappers;
 
 import muralis.poc.mensageria.inbound.rest.dtos.VeiculoRequest;
+import muralis.poc.mensageria.inbound.rest.dtos.VeiculoResponse;
 import muralis.poc.mensageria.outbound.persistence.entities.VeiculoJpaEntity;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
 import org.mapstruct.Mapper;
@@ -13,5 +14,7 @@ public interface VeiculoMapper {
     Veiculo toEntity(VeiculoJpaEntity veiculoJpaEntity);
 
     Veiculo toEntity(VeiculoRequest veiculoRequest);
+
+    VeiculoResponse toResponse(Veiculo veiculo);
 
 }
