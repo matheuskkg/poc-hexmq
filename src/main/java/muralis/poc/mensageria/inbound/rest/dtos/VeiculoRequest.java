@@ -13,7 +13,7 @@ public class VeiculoRequest {
 
     private String modelo;
 
-    private VeiculoCategoriaRequest categoria;
+    private String categoria;
 
     private LocalDate dataCriacao;
 
