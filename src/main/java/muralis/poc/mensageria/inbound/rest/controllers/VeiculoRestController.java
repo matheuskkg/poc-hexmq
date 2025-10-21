@@ -1,8 +1,8 @@
 package muralis.poc.mensageria.inbound.rest.controllers;
 
 import muralis.poc.mensageria.core.application.usecases.ConsultarTodosVeiculos;
+import muralis.poc.mensageria.core.application.usecases.ProcessarVeiculos;
 import muralis.poc.mensageria.inbound.rest.dtos.VeiculoRequest;
-import muralis.poc.mensageria.core.application.usecases.EnviarVeiculoParaFila;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
 import muralis.poc.mensageria.inbound.rest.dtos.VeiculoResponse;
 import muralis.poc.mensageria.util.mappers.VeiculoMapper;
@@ -20,7 +20,7 @@ public class VeiculoRestController {
     private VeiculoMapper mapper;
 
     @Autowired
-    private EnviarVeiculoParaFila enviarVeiculoParaFila;
+    private ProcessarVeiculos processarVeiculos;
 
     @Autowired
     private ConsultarTodosVeiculos consultarTodosVeiculos;
@@ -29,7 +29,7 @@ public class VeiculoRestController {
     public ResponseEntity salvarVeiculos(@RequestBody List<VeiculoRequest> request) {
         List<Veiculo> veiculos = request.stream().map(vr -> mapper.toEntity(vr)).toList();
 
-        veiculos.forEach(v -> enviarVeiculoParaFila.execute(v));
+        processarVeiculos.execute(veiculos);
 
         return ResponseEntity.ok().build();
     }

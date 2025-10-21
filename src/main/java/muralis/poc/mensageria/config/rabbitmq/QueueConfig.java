@@ -7,6 +7,8 @@ public class QueueConfig {
 
     private String name;
 
+    private String exchangeType;
+
     private String exchange;
 
     private String routingKey;

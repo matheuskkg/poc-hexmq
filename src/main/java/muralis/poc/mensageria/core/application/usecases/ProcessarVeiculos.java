@@ -1,38 +1,60 @@
 package muralis.poc.mensageria.core.application.usecases;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.tools.json.JSONUtil;
+import jakarta.transaction.Transactional;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import muralis.poc.mensageria.core.domain.model.Outbox;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
+import muralis.poc.mensageria.core.domain.repositories.OutboxRepository;
 import muralis.poc.mensageria.core.domain.repositories.VeiculoRepository;
 import muralis.poc.mensageria.util.mappers.VeiculoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.serializer.Serializer;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class ProcessarVeiculoNaFila implements UseCase<Void, Veiculo> {
+public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
 
     @Autowired
     private VeiculoMapper mapper;
 
     @Autowired
-    private VeiculoRepository repository;
+    private VeiculoRepository veiculoRepository;
+
+    @Autowired
+    private OutboxRepository outboxRepository;
 
     private final Pattern regexPlaca = Pattern.compile("^(?:[A-Za-z]{3}-?\\d{4}|[A-Za-z]{3}\\d[A-Za-z]\\d{2})$");
 
     @Override
-    public Void execute(Veiculo entidade) {
-        String placa = entidade.getPlaca();
-        if (!validarCamposObrigatorios(entidade) || !validarPlaca(placa)) return null;
+    public Void execute(List<Veiculo> entidade) {
+        entidade.forEach(this::processar);
+
+        return null;
+    }
+
+    @SneakyThrows
+    @Transactional
+    private void processar(Veiculo veiculo) {
+        String placa = veiculo.getPlaca();
+        if (!validarCamposObrigatorios(veiculo) || !validarPlaca(placa)) return;
 
         try {
-            repository.salvar(entidade);
-
-            log.info("Veículo processado: {}", placa);
+            Veiculo veiculoSalvo = veiculoRepository.salvar(veiculo);
+            outboxRepository.salvar(Outbox.builder()
+                    .aggregateId(veiculoSalvo.getId())
+                    .aggregateType(veiculoSalvo.getClass().getName())
+                    .payload(veiculoSalvo.toString())
+                    .build());
         } catch (DataAccessException e) {
             Throwable root = e.getRootCause();
 
@@ -50,8 +72,6 @@ public class ProcessarVeiculoNaFila implements UseCase<Void, Veiculo> {
                 throw e;
             }
         }
-
-        return null;
     }
 
     private boolean validarCamposObrigatorios(Veiculo veiculo) {

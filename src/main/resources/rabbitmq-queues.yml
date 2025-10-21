@@ -1,8 +1,9 @@
 rabbitmq:
   queues:
-    - name: cadastrar.veiculo.queue
+    - name: veiculo.log.queue
+      exchange-type: topic
       exchange: veiculo
-      routing-key: cadastrar.veiculo
-      dlx-exchange: veiculo.dlx
-      dlq-name: cadastrar.veiculo.dlq
-      dlq-routing-key: cadastrar.veiculo.dlq
+      routing-key: veiculo.log
+      dlx-exchange: veiculo.log.dlx
+      dlq-name: veiculo.log.dlq
+      dlq-routing-key: veiculo.log.dlq

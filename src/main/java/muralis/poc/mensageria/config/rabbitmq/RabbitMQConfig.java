@@ -27,16 +27,33 @@ public class RabbitMQConfig {
                     .withArgument("x-dead-letter-routing-key", config.getDlqRoutingKey())
                     .build();
 
-            DirectExchange exchange = new DirectExchange(config.getExchange());
-            DirectExchange dlx = new DirectExchange(config.getDlxExchange());
             Queue dlq = new Queue(config.getDlqName(), true);
 
+            switch (config.getExchangeType()) {
+                case "direct":
+                    DirectExchange directExchange = new DirectExchange(config.getExchange());
+                    declarables.add(BindingBuilder.bind(queue).to(directExchange).with(config.getRoutingKey()));
+                    declarables.add(directExchange);
+
+                    DirectExchange directDlxExchange = new DirectExchange(config.getDlxExchange());
+                    declarables.add(BindingBuilder.bind(dlq).to(directDlxExchange).with(config.getDlqRoutingKey()));
+                    declarables.add(directDlxExchange);
+
+                    break;
+                case "topic":
+                    TopicExchange topicExchange = new TopicExchange(config.getExchange());
+                    declarables.add(BindingBuilder.bind(queue).to(topicExchange).with(config.getRoutingKey()));
+                    declarables.add(topicExchange);
+
+                    TopicExchange topicDlxExchange = new TopicExchange(config.getDlxExchange());
+                    declarables.add(BindingBuilder.bind(dlq).to(topicDlxExchange).with(config.getDlqRoutingKey()));
+                    declarables.add(topicDlxExchange);
+
+                    break;
+            }
+
             declarables.add(queue);
-            declarables.add(exchange);
-            declarables.add(dlx);
             declarables.add(dlq);
-            declarables.add(BindingBuilder.bind(queue).to(exchange).with(config.getRoutingKey()));
-            declarables.add(BindingBuilder.bind(dlq).to(dlx).with(config.getDlqRoutingKey()));
         }
 
         return new Declarables(declarables);
