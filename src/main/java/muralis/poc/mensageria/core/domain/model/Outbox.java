@@ -13,7 +13,11 @@ public class Outbox {
 
     private String aggregateType;
 
-    private String payload;
+    private Object payload;
+
+    private String exchange;
+
+    private String routingKey;
 
     @Builder.Default
     private OutboxStatus status = OutboxStatus.PENDENTE;

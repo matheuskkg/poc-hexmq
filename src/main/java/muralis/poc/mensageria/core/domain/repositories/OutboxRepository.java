@@ -8,6 +8,8 @@ public interface OutboxRepository {
 
     void salvar(Outbox outbox);
 
+    void salvar(List<Outbox> outboxes);
+
     List<Outbox> consultarPendentes();
 
 }

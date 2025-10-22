@@ -1,28 +1,28 @@
 package muralis.poc.mensageria.core.application.usecases;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.tools.json.JSONUtil;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import muralis.poc.mensageria.core.domain.model.Outbox;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
 import muralis.poc.mensageria.core.domain.repositories.OutboxRepository;
+import muralis.poc.mensageria.core.domain.repositories.VeiculoCategoriaRepository;
 import muralis.poc.mensageria.core.domain.repositories.VeiculoRepository;
 import muralis.poc.mensageria.util.mappers.VeiculoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.serializer.Serializer;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
+public class ProcessarVeiculos implements UseCase<Future<Void>, List<Veiculo>> {
 
     @Autowired
     private VeiculoMapper mapper;
@@ -33,10 +33,14 @@ public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
     @Autowired
     private OutboxRepository outboxRepository;
 
+    @Autowired
+    private VeiculoCategoriaRepository categoriaRepository;
+
     private final Pattern regexPlaca = Pattern.compile("^(?:[A-Za-z]{3}-?\\d{4}|[A-Za-z]{3}\\d[A-Za-z]\\d{2})$");
 
+    @Async
     @Override
-    public Void execute(List<Veiculo> entidade) {
+    public Future<Void> execute(List<Veiculo> entidade) {
         entidade.forEach(this::processar);
 
         return null;
@@ -46,14 +50,16 @@ public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
     @Transactional
     private void processar(Veiculo veiculo) {
         String placa = veiculo.getPlaca();
-        if (!validarCamposObrigatorios(veiculo) || !validarPlaca(placa)) return;
+        if (!validarCamposObrigatorios(veiculo)) return;
 
         try {
             Veiculo veiculoSalvo = veiculoRepository.salvar(veiculo);
             outboxRepository.salvar(Outbox.builder()
                     .aggregateId(veiculoSalvo.getId())
                     .aggregateType(veiculoSalvo.getClass().getName())
-                    .payload(veiculoSalvo.toString())
+                    .payload(veiculoSalvo)
+                    .exchange("veiculo")
+                    .routingKey("veiculo.log")
                     .build());
         } catch (DataAccessException e) {
             Throwable root = e.getRootCause();
@@ -62,13 +68,13 @@ public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
                 String sqlState = sqlException.getSQLState();
 
                 if ("23505".equals(sqlState)) {
-                    log.warn("Veículo {} já está salvo", placa);
+                    log.warn("Veículo com a placa {} já está salvo", placa);
                 } else {
-                    log.error("Erro ao persistir veículo: {}, SQLState: {}", placa, sqlState);
+                    log.error("Erro ao persistir veículo: {}, SQLState: {}", veiculo, sqlState);
                     throw e;
                 }
             } else {
-                log.error("Erro ao persistir veículo: {}", placa);
+                log.error("Erro ao persistir veículo: {}", veiculo);
                 throw e;
             }
         }
@@ -77,18 +83,20 @@ public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
     private boolean validarCamposObrigatorios(Veiculo veiculo) {
         boolean isValido = true;
 
-        if (veiculo.getPlaca() == null || veiculo.getPlaca().isBlank()) {
-            log.info("Placa null ou vazia");
+        log.info("Validando o veículo {}", veiculo);
+
+        if (veiculo.getPlaca() == null || veiculo.getPlaca().isBlank() || !validarPlaca(veiculo.getPlaca())) {
+            log.info("Placa inválida: {}", veiculo.getPlaca());
             isValido = false;
         }
 
         if (veiculo.getModelo() == null || veiculo.getModelo().isBlank()) {
-            log.info("Modelo null ou vazio");
+            log.info("Modelo inválido: {}", veiculo.getModelo());
             isValido = false;
         }
 
-        if (veiculo.getCategoria() == null || veiculo.getCategoria().getCodigo() == null || veiculo.getCategoria().getCodigo().isBlank()) {
-            log.info("Categoria null ou vazia");
+        if (!categoriaRepository.existePorId(veiculo.getCategoria().getCodigo())) {
+            log.info("Categoria inválida: {}", veiculo.getCategoria().getCodigo());
             isValido = false;
         }
 
@@ -97,12 +105,7 @@ public class ProcessarVeiculos implements UseCase<Void, List<Veiculo>> {
 
     private boolean validarPlaca(String placa) {
         Matcher matcher = regexPlaca.matcher(placa);
-        if (!matcher.matches()) {
-            log.info("Placa de formato inválido: {}", placa);
 
-            return false;
-        }
-
-        return true;
+        return matcher.matches();
     }
 }

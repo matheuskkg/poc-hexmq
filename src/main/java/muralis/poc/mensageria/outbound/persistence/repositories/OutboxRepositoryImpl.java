@@ -28,6 +28,13 @@ public class OutboxRepositoryImpl implements OutboxRepository {
     }
 
     @Override
+    public void salvar(List<Outbox> outboxes) {
+        List<OutboxJpaEntity> outboxJpaEntities = outboxes.stream().map(o -> mapper.toJpaEntity(o)).toList();
+
+        jpaRepository.saveAll(outboxJpaEntities);
+    }
+
+    @Override
     public List<Outbox> consultarPendentes() {
         List<OutboxJpaEntity> jpaResponse = jpaRepository.findAllByStatus(OutboxStatus.PENDENTE);
 

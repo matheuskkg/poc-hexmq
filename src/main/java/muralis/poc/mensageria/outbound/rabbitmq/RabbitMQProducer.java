@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class VeiculoSender implements AdicionarNaFila {
+public class RabbitMQProducer implements AdicionarNaFila {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @Override
-    public void adicionarNaFila(Object object) {
-        rabbitTemplate.convertAndSend("veiculo", "veiculo.log", object);
+    public void adicionarNaFila(Object object, String exchange, String routingKey) {
+        rabbitTemplate.convertAndSend(exchange, routingKey, object);
     }
 
 }

@@ -1,11 +1,15 @@
 package muralis.poc.mensageria.outbound.persistence.entities;
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import muralis.poc.mensageria.core.domain.model.OutboxStatus;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "outbox")
@@ -23,8 +27,14 @@ public class OutboxJpaEntity {
 
     private String aggregateType;
 
-    @Column(length = 1000)
-    private String payload;
+    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Object payload;
+
+    private String exchange;
+
+    private String routingKey;
 
     @Enumerated(EnumType.STRING)
     private OutboxStatus status;
