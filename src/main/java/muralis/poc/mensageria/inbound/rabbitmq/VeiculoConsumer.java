@@ -19,4 +19,9 @@ public class VeiculoConsumer {
         }
     }
 
+    @RabbitListener(queues = "veiculo.test.queue")
+    public void test(Veiculo veiculo) {
+        log.info("Fila de teste {}", veiculo);
+    }
+
 }

@@ -3,7 +3,15 @@ rabbitmq:
     - name: veiculo.log.queue
       exchange-type: topic
       exchange: veiculo
-      routing-key: veiculo.log
+      routing-key: veiculo.#
       dlx-exchange: veiculo.log.dlx
       dlq-name: veiculo.log.dlq
       dlq-routing-key: veiculo.log.dlq
+
+    - name: veiculo.test.queue
+      exchange-type: topic
+      exchange: veiculo
+      routing-key: veiculo.#
+      dlx-exchange: veiculo.test.dlx
+      dlq-name: veiculo.test.dlq
+      dlq-routing-key: veiculo.test.dlq

@@ -1,7 +1,6 @@
 package muralis.poc.mensageria.core.application.usecases;
 
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import muralis.poc.mensageria.core.domain.model.Outbox;
 import muralis.poc.mensageria.core.domain.model.Veiculo;
@@ -46,7 +45,6 @@ public class ProcessarVeiculos implements UseCase<Future<Void>, List<Veiculo>> {
         return null;
     }
 
-    @SneakyThrows
     @Transactional
     private void processar(Veiculo veiculo) {
         String placa = veiculo.getPlaca();
@@ -62,7 +60,7 @@ public class ProcessarVeiculos implements UseCase<Future<Void>, List<Veiculo>> {
                     .aggregateType(veiculoSalvo.getClass().getName())
                     .payload(veiculoSalvo)
                     .exchange("veiculo")
-                    .routingKey("veiculo.log")
+                    .routingKey("veiculo.#")
                     .build());
         } catch (DataAccessException e) {
             Throwable root = e.getRootCause();
