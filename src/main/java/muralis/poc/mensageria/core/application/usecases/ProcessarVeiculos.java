@@ -98,8 +98,10 @@ public class ProcessarVeiculos implements UseCase<Future<Void>, List<Veiculo>> {
             isValido = false;
         }
 
-        if (!categoriaRepository.existePorId(veiculo.getCategoria().getCodigo())) {
-            log.info("Categoria inválida: {}", veiculo.getCategoria().getCodigo());
+        if (veiculo.getCategoria() == null
+                || veiculo.getCategoria().getCodigo() == null
+                || !categoriaRepository.existePorId(veiculo.getCategoria().getCodigo())) {
+            log.info("Categoria inválida: {}", veiculo.getCategoria());
             isValido = false;
         }
 
