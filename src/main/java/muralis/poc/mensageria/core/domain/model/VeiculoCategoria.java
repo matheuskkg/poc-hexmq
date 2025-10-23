@@ -1,10 +1,12 @@
 package muralis.poc.mensageria.core.domain.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class VeiculoCategoria {
 
     private String codigo;

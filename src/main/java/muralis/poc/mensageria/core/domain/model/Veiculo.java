@@ -1,12 +1,12 @@
 package muralis.poc.mensageria.core.domain.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
 import lombok.Data;
-import lombok.SneakyThrows;
 
 import java.time.LocalDateTime;
 
 @Data
+@Builder
 public class Veiculo {
 
     private Long id;
