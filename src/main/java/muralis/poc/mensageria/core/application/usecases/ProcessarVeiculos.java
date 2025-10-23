@@ -52,6 +52,9 @@ public class ProcessarVeiculos implements UseCase<Future<Void>, List<Veiculo>> {
         String placa = veiculo.getPlaca();
         if (!validarCamposObrigatorios(veiculo)) return;
 
+        placa = placa.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        veiculo.setPlaca(placa);
+
         try {
             Veiculo veiculoSalvo = veiculoRepository.salvar(veiculo);
             outboxRepository.salvar(Outbox.builder()
