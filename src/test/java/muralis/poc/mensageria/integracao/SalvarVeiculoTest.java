@@ -6,6 +6,7 @@ import muralis.poc.mensageria.inbound.rest.dtos.VeiculoRequest;
 import muralis.poc.mensageria.outbound.persistence.repositories.jpa.VeiculoJpaRepository;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,6 +47,7 @@ class SalvarVeiculoTest extends DockerConfig {
     }
 
     @Test
+    @DisplayName("Deve salvar veículo em requisições HTTP")
     void deveSalvarVeiculo_requestHttp() throws Exception {
         List<VeiculoRequest> veiculos = List.of(VeiculoRequest.builder()
                 .placa("ABC1234")
@@ -68,6 +70,7 @@ class SalvarVeiculoTest extends DockerConfig {
     }
 
     @Test
+    @DisplayName("Deve salvar diversos veículos em requisições HTTP")
     void deveSalvarDiversosVeiculos_requestHttp() throws Exception {
         List<VeiculoRequest> veiculos = List.of(
                 VeiculoRequest.builder().placa("ABC1234").modelo("Onix").categoria("CAT01").build(),
@@ -90,6 +93,7 @@ class SalvarVeiculoTest extends DockerConfig {
     }
 
     @Test
+    @DisplayName("Não deve salvar veículos quando a placa já estiver em uso em requisições HTTP")
     void naoDeveSalvar_quandoPlacaJaEstiverSalva_requestHttp() throws Exception {
         List<VeiculoRequest> veiculos = List.of(
                 VeiculoRequest.builder().placa("ABC1234").modelo("Onix").categoria("CAT01").build(),
